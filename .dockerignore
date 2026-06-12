@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.env
+data/raw/*.csv
+data/processed/*.csv
+artifacts/*.joblib
+artifacts/*.json
+artifacts/*.png
+notebooks/.ipynb_checkpoints
