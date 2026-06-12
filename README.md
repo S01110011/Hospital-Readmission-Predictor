@@ -163,6 +163,17 @@ For real use, the project would require LGPD/HIPAA review, data protection impac
 - [Data Dictionary](reports/data_dictionary.md)
 - [GitHub and LinkedIn Guide](docs/github_linkedin.md)
 
+## Micro Data Center Portfolio Ecosystem
+
+This repository also includes a complete commercial portfolio ecosystem with 100 professional project blueprints for a Micro Data Center specialized in AI, healthcare, clinical data science, pharmacovigilance, drug discovery, crystallography, bioinformatics, HPC, defensive cybersecurity, MLOps, DevSecOps and executive analytics.
+
+- [Portfolio Root](micro-data-center-ai-health-portfolio/README.md)
+- [100-Project Index](micro-data-center-ai-health-portfolio/portfolio_index.md)
+- [Commercial Strategy](micro-data-center-ai-health-portfolio/docs/micro_datacenter_commercial_strategy.md)
+- [GitHub Publication Plan](micro-data-center-ai-health-portfolio/docs/github_publication_plan.md)
+- [LinkedIn Presentation Plan](micro-data-center-ai-health-portfolio/docs/linkedin_presentation_plan.md)
+- [Roadmap to Client Services](micro-data-center-ai-health-portfolio/docs/service_roadmap.md)
+
 ## Suggested GitHub Publication
 
 ```bash

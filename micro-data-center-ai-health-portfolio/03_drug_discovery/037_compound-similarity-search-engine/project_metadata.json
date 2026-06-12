@@ -1,0 +1,11 @@
+{
+  "number": 37,
+  "name": "Compound Similarity Search Engine",
+  "category": "Category(folder='03_drug_discovery', title='Drug Discovery', description='Computational pipelines for molecular screening, QSAR, ADMET and repurposing.')",
+  "domain": "Drug Discovery",
+  "client": "Biotech startups, medicinal chemistry teams and research labs",
+  "dataset": "Simulated molecular descriptors and public-ready compound metadata",
+  "interface": "FastAPI molecular scoring API",
+  "uses_ai": true,
+  "package": "compound_similarity_search_engine"
+}

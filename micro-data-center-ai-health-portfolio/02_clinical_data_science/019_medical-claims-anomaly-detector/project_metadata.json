@@ -1,0 +1,11 @@
+{
+  "number": 19,
+  "name": "Medical Claims Anomaly Detector",
+  "category": "Category(folder='02_clinical_data_science', title='Clinical Data Science', description='Analytics, forecasting and data quality systems for hospitals and care networks.')",
+  "domain": "Clinical Data Science",
+  "client": "Hospital executives, clinical quality teams and operations leaders",
+  "dataset": "Synthetic hospital operations and clinical quality dataset",
+  "interface": "FastAPI analytics API and dashboard-ready outputs",
+  "uses_ai": true,
+  "package": "medical_claims_anomaly_detector"
+}

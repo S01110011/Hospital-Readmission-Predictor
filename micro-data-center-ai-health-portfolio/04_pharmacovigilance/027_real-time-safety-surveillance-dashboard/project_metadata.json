@@ -1,0 +1,11 @@
+{
+  "number": 27,
+  "name": "Real-Time Safety Surveillance Dashboard",
+  "category": "Category(folder='04_pharmacovigilance', title='Pharmacovigilance', description='Drug safety signal detection, case prioritization and regulatory automation.')",
+  "domain": "Pharmacovigilance",
+  "client": "Pharmaceutical safety teams, CROs and regulatory affairs groups",
+  "dataset": "Synthetic FAERS-style adverse event and case narrative dataset",
+  "interface": "FastAPI case triage and safety signal API",
+  "uses_ai": true,
+  "package": "real_time_safety_surveillance_dashboard"
+}

@@ -1,0 +1,11 @@
+{
+  "number": 59,
+  "name": "Genomic Data Privacy Framework",
+  "category": "Category(folder='06_bioinformatics', title='Bioinformatics', description='Genomic, transcriptomic, proteomic and multi-omics analysis workflows.')",
+  "domain": "Bioinformatics",
+  "client": "Genomics labs, translational research teams and universities",
+  "dataset": "Synthetic omics matrix, variant or sequence metadata",
+  "interface": "FastAPI bioinformatics workflow API",
+  "uses_ai": true,
+  "package": "genomic_data_privacy_framework"
+}

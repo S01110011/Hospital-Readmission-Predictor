@@ -1,0 +1,11 @@
+{
+  "number": 63,
+  "name": "Energy Consumption Forecasting AI",
+  "category": "Category(folder='07_micro_datacenter_operations', title='Micro Data Center Operations', description='Monitoring, capacity, energy, SLA and infrastructure operations products.')",
+  "domain": "Micro Data Center Operations",
+  "client": "Micro data center operators, MSPs and infrastructure customers",
+  "dataset": "Synthetic telemetry from racks, GPUs, energy and SLA systems",
+  "interface": "FastAPI operational intelligence API",
+  "uses_ai": true,
+  "package": "energy_consumption_forecasting_ai"
+}

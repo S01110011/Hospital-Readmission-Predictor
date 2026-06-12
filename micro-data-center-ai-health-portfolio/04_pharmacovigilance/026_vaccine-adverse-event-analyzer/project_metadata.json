@@ -1,0 +1,11 @@
+{
+  "number": 26,
+  "name": "Vaccine Adverse Event Analyzer",
+  "category": "Category(folder='04_pharmacovigilance', title='Pharmacovigilance', description='Drug safety signal detection, case prioritization and regulatory automation.')",
+  "domain": "Pharmacovigilance",
+  "client": "Pharmaceutical safety teams, CROs and regulatory affairs groups",
+  "dataset": "Synthetic FAERS-style adverse event and case narrative dataset",
+  "interface": "FastAPI case triage and safety signal API",
+  "uses_ai": true,
+  "package": "vaccine_adverse_event_analyzer"
+}

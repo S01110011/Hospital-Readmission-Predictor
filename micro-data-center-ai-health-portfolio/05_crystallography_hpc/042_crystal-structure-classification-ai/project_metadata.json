@@ -1,0 +1,11 @@
+{
+  "number": 42,
+  "name": "Crystal Structure Classification AI",
+  "category": "Category(folder='05_crystallography_hpc', title='Crystallography and Scientific HPC', description='Scientific computing workflows for crystallography, imaging and HPC operations.')",
+  "domain": "Crystallography and Scientific HPC",
+  "client": "Structural biology labs, crystallography groups and HPC users",
+  "dataset": "Simulated diffraction, image and HPC job telemetry dataset",
+  "interface": "FastAPI scientific workflow API",
+  "uses_ai": true,
+  "package": "crystal_structure_classification_ai"
+}
