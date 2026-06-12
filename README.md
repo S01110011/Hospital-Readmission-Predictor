@@ -163,19 +163,11 @@ For real use, the project would require LGPD/HIPAA review, data protection impac
 - [Data Dictionary](reports/data_dictionary.md)
 - [GitHub and LinkedIn Guide](docs/github_linkedin.md)
 
-## Micro Data Center Portfolio Ecosystem
+## Related Portfolio Ecosystem
 
-This repository also includes a complete commercial portfolio ecosystem with 100 professional project blueprints for a Micro Data Center specialized in AI, healthcare, clinical data science, pharmacovigilance, drug discovery, crystallography, bioinformatics, HPC, defensive cybersecurity, MLOps, DevSecOps and executive analytics.
+The 100-project Micro Data Center AI and Health commercial portfolio was transferred to its own dedicated repository:
 
-- [Portfolio Root](micro-data-center-ai-health-portfolio/README.md)
-- [100-Project Index](micro-data-center-ai-health-portfolio/portfolio_index.md)
-- [Commercial Strategy](micro-data-center-ai-health-portfolio/docs/micro_datacenter_commercial_strategy.md)
-- [GitHub Publication Plan](micro-data-center-ai-health-portfolio/docs/github_publication_plan.md)
-- [LinkedIn Presentation Plan](micro-data-center-ai-health-portfolio/docs/linkedin_presentation_plan.md)
-- [Roadmap to Client Services](micro-data-center-ai-health-portfolio/docs/service_roadmap.md)
-- [Committee Review Summary](micro-data-center-ai-health-portfolio/docs/committee_review_summary.md)
-- [Client Presentation Checklist](micro-data-center-ai-health-portfolio/docs/client_presentation_checklist.md)
-- [Data Governance Framework](micro-data-center-ai-health-portfolio/docs/data_governance_framework.md)
+[Micro Data Center AI Health Portfolio](https://github.com/S01110011/Micro-Data-Center-Ai-Health-Portfolio)
 
 ## Suggested GitHub Publication
 
