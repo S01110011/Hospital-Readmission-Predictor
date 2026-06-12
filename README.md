@@ -173,6 +173,9 @@ This repository also includes a complete commercial portfolio ecosystem with 100
 - [GitHub Publication Plan](micro-data-center-ai-health-portfolio/docs/github_publication_plan.md)
 - [LinkedIn Presentation Plan](micro-data-center-ai-health-portfolio/docs/linkedin_presentation_plan.md)
 - [Roadmap to Client Services](micro-data-center-ai-health-portfolio/docs/service_roadmap.md)
+- [Committee Review Summary](micro-data-center-ai-health-portfolio/docs/committee_review_summary.md)
+- [Client Presentation Checklist](micro-data-center-ai-health-portfolio/docs/client_presentation_checklist.md)
+- [Data Governance Framework](micro-data-center-ai-health-portfolio/docs/data_governance_framework.md)
 
 ## Suggested GitHub Publication
 

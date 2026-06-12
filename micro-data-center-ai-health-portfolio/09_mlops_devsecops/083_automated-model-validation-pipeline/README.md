@@ -18,6 +18,13 @@ Build a reproducible data pipeline, baseline machine learning model, validated i
 
 `Data ingestion -> validation -> preprocessing -> analytics/model service -> FastAPI interface -> logs/metrics -> dashboard or client integration.`
 
+## Executive Value
+
+- Demonstrates a sellable Micro Data Center service for MLOps and DevSecOps.
+- Provides a secure starting point for client discovery and proof-of-concept delivery.
+- Separates code, data, documentation, tests and deployment assets.
+- Includes compliance, risk and governance documentation expected by enterprise clients.
+
 ## Technologies
 
 Python, FastAPI, Pydantic, pandas, NumPy, scikit-learn, pytest, Docker, GitHub Actions,
@@ -30,6 +37,8 @@ Synthetic model lifecycle, drift and validation metadata. No real patient, custo
 ## API
 
 - `GET /health`
+- `GET /ready`
+- `GET /metrics`
 - `POST /predict` or `/analyze`
 
 ## Security and Privacy
@@ -54,8 +63,7 @@ docker compose up --build
 
 ## Monetization
 
-Possible commercial offers include proof-of-concept delivery, managed API hosting,
-dashboard subscription, model monitoring, compliance documentation and premium support.
+Automated Model Validation Pipeline can be sold as a paid discovery workshop, a fixed-scope MVP, a managed API, an executive dashboard add-on and a monthly compliance/monitoring retainer.
 
 ## Roadmap
 
@@ -64,3 +72,8 @@ dashboard subscription, model monitoring, compliance documentation and premium s
 3. Add observability, drift monitoring and SLA reporting.
 4. Add client-specific dashboard and executive reports.
 5. Validate with domain experts before operational use.
+
+## Committee Notes
+
+See `docs/committee_review.md` for a review from solution architecture, data science,
+MLOps, security, LGPD/HIPAA, digital health and Micro Data Center CTO perspectives.

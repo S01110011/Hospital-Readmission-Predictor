@@ -343,6 +343,64 @@ def technical_objective(project: Project) -> str:
     )
 
 
+def revenue_model(project: Project) -> str:
+    """Return a commercial packaging statement."""
+
+    return (
+        f"{project.name} can be sold as a paid discovery workshop, a fixed-scope MVP, "
+        "a managed API, an executive dashboard add-on and a monthly compliance/monitoring retainer."
+    )
+
+
+def committee_review(project: Project) -> str:
+    """Return a project-level review from the requested committee perspectives."""
+
+    return f"""
+    # Committee Review
+
+    Project: {project.name}
+
+    ## Solution Architect
+
+    The project follows a layered architecture with ingestion, validation, service logic, API,
+    tests, documentation and deploy assets. Production adoption requires tenant isolation,
+    network segmentation and environment-specific deployment manifests.
+
+    ## Senior Data Scientist
+
+    The current implementation is a deterministic professional scaffold. Before client use,
+    replace the baseline with a validated dataset, exploratory analysis, statistical validation,
+    calibration where relevant and documented limitations.
+
+    ## MLOps Engineer
+
+    The repository includes CI, Docker and testable service boundaries. Production maturity
+    should add artifact registry, model versioning, rollback, drift monitoring and release gates.
+
+    ## Security Specialist
+
+    The scaffold includes environment-based configuration, no committed secrets, security headers,
+    validated requests and safe logging. Production requires IAM, secret management, vulnerability
+    scanning, SAST/DAST and centralized audit logs.
+
+    ## LGPD/HIPAA Specialist
+
+    Synthetic data is used by default. Real deployments require DPIA/LIA or equivalent privacy
+    assessment, data processing agreements, data minimization, retention policy and documented
+    lawful basis.
+
+    ## Digital Health Specialist
+
+    This project is decision-support oriented. Clinical or laboratory decisions require human
+    oversight, local protocol alignment and validation with domain experts.
+
+    ## Micro Data Center CTO
+
+    Commercial readiness depends on repeatable deployment, observability, SLA management,
+    customer onboarding, support processes and a sustainable pricing model.
+    """
+
+
 def architecture(project: Project) -> str:
     """Create a compact architecture narrative."""
 
@@ -376,6 +434,13 @@ def project_readme(project: Project) -> str:
 
     `{architecture(project)}`
 
+    ## Executive Value
+
+    - Demonstrates a sellable Micro Data Center service for {project.domain}.
+    - Provides a secure starting point for client discovery and proof-of-concept delivery.
+    - Separates code, data, documentation, tests and deployment assets.
+    - Includes compliance, risk and governance documentation expected by enterprise clients.
+
     ## Technologies
 
     Python, FastAPI, Pydantic, pandas, NumPy, scikit-learn, pytest, Docker, GitHub Actions,
@@ -388,6 +453,8 @@ def project_readme(project: Project) -> str:
     ## API
 
     - `GET /health`
+    - `GET /ready`
+    - `GET /metrics`
     - `POST /predict` or `/analyze`
 
     ## Security and Privacy
@@ -412,8 +479,7 @@ def project_readme(project: Project) -> str:
 
     ## Monetization
 
-    Possible commercial offers include proof-of-concept delivery, managed API hosting,
-    dashboard subscription, model monitoring, compliance documentation and premium support.
+    {revenue_model(project)}
 
     ## Roadmap
 
@@ -422,6 +488,11 @@ def project_readme(project: Project) -> str:
     3. Add observability, drift monitoring and SLA reporting.
     4. Add client-specific dashboard and executive reports.
     5. Validate with domain experts before operational use.
+
+    ## Committee Notes
+
+    See `docs/committee_review.md` for a review from solution architecture, data science,
+    MLOps, security, LGPD/HIPAA, digital health and Micro Data Center CTO perspectives.
     """
 
 
@@ -467,6 +538,9 @@ def src_api(project: Project) -> str:
 
     from __future__ import annotations
 
+    from time import perf_counter
+    from uuid import uuid4
+
     from fastapi import FastAPI, HTTPException, Request
     from pydantic import BaseModel, Field
 
@@ -484,16 +558,27 @@ def src_api(project: Project) -> str:
         description="Commercial Micro Data Center portfolio API. Not for regulated production use without validation.",
     )
 
+    SERVICE_METRICS = {{"requests_total": 0, "errors_total": 0, "last_latency_ms": 0.0}}
+
 
     @app.middleware("http")
     async def add_security_headers(request: Request, call_next):
         """Attach conservative HTTP security headers."""
 
-        response = await call_next(request)
+        request_id = str(uuid4())
+        start = perf_counter()
+        SERVICE_METRICS["requests_total"] += 1
+        try:
+            response = await call_next(request)
+        except Exception:
+            SERVICE_METRICS["errors_total"] += 1
+            raise
+        SERVICE_METRICS["last_latency_ms"] = round((perf_counter() - start) * 1000, 3)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Cache-Control"] = "no-store"
+        response.headers["X-Request-ID"] = request_id
         return response
 
 
@@ -524,17 +609,34 @@ def src_api(project: Project) -> str:
         return {{"status": "ok", "project": settings.app_name, "environment": settings.app_env}}
 
 
+    @app.get("/ready")
+    def ready() -> dict[str, str]:
+        """Return readiness for orchestration and client demos."""
+
+        return {{"status": "ready", "project": settings.app_name}}
+
+
+    @app.get("/metrics")
+    def metrics() -> dict[str, float | int]:
+        """Return minimal non-sensitive operational metrics."""
+
+        return SERVICE_METRICS
+
+
     @app.post("/{action}", response_model=AnalysisResponse)
     def {action}(payload: AnalysisRequest) -> AnalysisResponse:
         """Run validated portfolio pipeline."""
 
         try:
             result = run_pipeline(payload.model_dump())
+            logger.info("Processed request for project=%s classification=%s", settings.app_name, result["classification"])
             return AnalysisResponse(project=settings.app_name, model_version=settings.model_version, **result)
         except ValueError as exc:
+            SERVICE_METRICS["errors_total"] += 1
             logger.warning("Invalid request: %s", exc)
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         except Exception as exc:
+            SERVICE_METRICS["errors_total"] += 1
             logger.exception("Unexpected service error")
             raise HTTPException(status_code=500, detail="Unexpected service error") from exc
     '''
@@ -620,6 +722,19 @@ def tests(project: Project) -> str:
         assert response.status_code == 200
         assert response.json()["status"] == "ok"
         assert response.headers["X-Content-Type-Options"] == "nosniff"
+        assert "X-Request-ID" in response.headers
+
+
+    def test_ready_and_metrics_endpoints():
+        client = TestClient(app)
+
+        ready = client.get("/ready")
+        metrics = client.get("/metrics")
+
+        assert ready.status_code == 200
+        assert ready.json()["status"] == "ready"
+        assert metrics.status_code == 200
+        assert "requests_total" in metrics.json()
 
 
     def test_pipeline_returns_valid_score():
@@ -638,6 +753,16 @@ def tests(project: Project) -> str:
 
         assert response.status_code == 200
         assert 0 <= response.json()["{score_field}"] <= 1
+
+
+    def test_{action}_endpoint_rejects_invalid_payload():
+        client = TestClient(app)
+        response = client.post(
+            "/{action}",
+            json={{"entity_id": "x", "numeric_signal": -1, "severity": 8, "context": "test"}},
+        )
+
+        assert response.status_code == 422
     '''
 
 
@@ -654,6 +779,96 @@ def test_conftest() -> str:
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(PROJECT_ROOT))
     '''
+
+
+def security_policy(project: Project) -> str:
+    return f"""
+    # Security Policy
+
+    ## Scope
+
+    {project.name} is a professional portfolio scaffold for commercial Micro Data Center services.
+    It uses synthetic or governed data only and must not process real sensitive data without
+    security, privacy and contractual controls.
+
+    ## Included Controls
+
+    - `.env.example` with no secrets.
+    - `.gitignore` blocking `.env`, generated data and artifacts.
+    - Pydantic request validation.
+    - HTTP security headers.
+    - Non-sensitive metrics endpoint.
+    - Safe logging without raw payloads.
+    - Docker non-root user.
+    - CI with pytest.
+
+    ## Production Requirements
+
+    - IAM and least privilege.
+    - Secret manager.
+    - TLS everywhere.
+    - SAST, dependency scanning and container scanning.
+    - Centralized audit logs.
+    - Backup, restore and incident response.
+    - Client data processing agreement.
+    """
+
+
+def contributing(project: Project) -> str:
+    return f"""
+    # Contributing
+
+    ## Quality Bar
+
+    Contributions to {project.name} must preserve a professional standard suitable for
+    healthcare, science, security or commercial Micro Data Center clients.
+
+    ## Checklist
+
+    - Tests pass with `pytest -q`.
+    - No secrets, PHI, PII or client data are committed.
+    - API contracts remain backward compatible or are documented.
+    - Security and compliance docs are updated when behavior changes.
+    - New model logic includes validation notes and risk analysis.
+    """
+
+
+def pyproject(project: Project) -> str:
+    return f"""
+    [build-system]
+    requires = ["setuptools>=68"]
+    build-backend = "setuptools.build_meta"
+
+    [project]
+    name = "{slugify(project.name)}"
+    version = "0.1.0"
+    description = "{project.domain} Micro Data Center portfolio project."
+    requires-python = ">=3.10"
+
+    [tool.pytest.ini_options]
+    testpaths = ["tests"]
+    pythonpath = ["."]
+    addopts = "-q"
+
+    [tool.ruff]
+    line-length = 100
+    target-version = "py310"
+    """
+
+
+def dockerignore() -> str:
+    return """
+    .git
+    .github
+    .venv
+    __pycache__
+    .pytest_cache
+    .env
+    data/raw/*.csv
+    data/processed/*.csv
+    artifacts
+    notebooks/.ipynb_checkpoints
+    """
 
 
 def common_docs(project: Project, doc_name: str) -> str:
@@ -697,6 +912,112 @@ def common_docs(project: Project, doc_name: str) -> str:
     - Monitoring and alerting.
     - Domain expert validation.
     - Legal, privacy and security review.
+    """
+
+
+def operations_doc(project: Project) -> str:
+    return f"""
+    # Operations Runbook
+
+    Project: {project.name}
+
+    ## Health Checks
+
+    - `GET /health`: process-level health.
+    - `GET /ready`: readiness for demos and orchestration.
+    - `GET /metrics`: non-sensitive operational counters.
+
+    ## Incident Response
+
+    1. Confirm service health and recent deployment.
+    2. Review logs using request IDs, not raw sensitive payloads.
+    3. Roll back to last approved container image.
+    4. Notify client stakeholders according to SLA.
+    5. Document root cause and corrective actions.
+
+    ## SLA Targets for Commercial Demo
+
+    - API availability target: 99.5 percent for pilot.
+    - Initial response time target: under 500 ms for synthetic demos.
+    - Recovery time objective: 4 hours for pilot.
+    - Recovery point objective: no committed sensitive data; client data governed separately.
+    """
+
+
+def monitoring_doc(project: Project) -> str:
+    return f"""
+    # Monitoring Plan
+
+    Project: {project.name}
+
+    ## Metrics
+
+    - Request volume.
+    - Error count and error rate.
+    - Latency percentiles.
+    - Classification distribution.
+    - Data quality failures.
+    - Drift indicators when a model is added.
+
+    ## Alerts
+
+    - Elevated 5xx errors.
+    - Unexpected classification distribution shift.
+    - Missing input fields or validation spikes.
+    - Container restart loops.
+    - Disk, CPU, memory or GPU saturation.
+    """
+
+
+def commercial_doc(project: Project) -> str:
+    return f"""
+    # Commercial Offer
+
+    Project: {project.name}
+
+    ## Offer
+
+    {revenue_model(project)}
+
+    ## Ideal Buyers
+
+    {project.client}.
+
+    ## Packaging
+
+    - Discovery workshop.
+    - Two-week proof of concept.
+    - Managed API deployment.
+    - Executive dashboard.
+    - Monitoring and compliance retainer.
+
+    ## Success Metrics
+
+    - Reduced manual analysis time.
+    - Faster operational decision-making.
+    - Improved audit readiness.
+    - Clear SLA and support boundaries.
+    """
+
+
+def production_checklist(project: Project) -> str:
+    return f"""
+    # Production Checklist
+
+    Project: {project.name}
+
+    - [ ] Client owner and technical owner assigned.
+    - [ ] Data classification completed.
+    - [ ] LGPD/HIPAA or applicable privacy review completed.
+    - [ ] Secrets moved to a managed secret store.
+    - [ ] Authentication and authorization enabled.
+    - [ ] TLS configured.
+    - [ ] Logs centralized and scrubbed.
+    - [ ] Backups and restore tested.
+    - [ ] Monitoring and alerts enabled.
+    - [ ] Security scans completed.
+    - [ ] Domain expert validation completed.
+    - [ ] Rollback plan documented.
     """
 
 
@@ -774,11 +1095,14 @@ def generate_project(project: Project) -> None:
     package = python_package(project.name)
 
     write_file(base / "README.md", project_readme(project))
+    write_file(base / "SECURITY.md", security_policy(project))
+    write_file(base / "CONTRIBUTING.md", contributing(project))
     write_file(base / "LICENSE", "MIT License\n\nCopyright (c) 2026 Micro Data Center Portfolio")
     write_file(
         base / ".gitignore",
         ".env\n.venv/\n__pycache__/\n.pytest_cache/\ndata/raw/*.csv\ndata/processed/*.csv\nartifacts/\n",
     )
+    write_file(base / ".dockerignore", dockerignore())
     write_file(
         base / ".env.example",
         f"APP_ENV=development\nLOG_LEVEL=INFO\nMODEL_VERSION={slug}\nPREDICTION_THRESHOLD=0.50\n",
@@ -787,6 +1111,7 @@ def generate_project(project: Project) -> None:
         base / "requirements.txt",
         "fastapi>=0.111.0\nuvicorn[standard]>=0.30.0\npydantic>=2.7.0\npydantic-settings>=2.2.0\npytest>=8.2.0\nhttpx>=0.27.0\npandas>=2.2.0\nnumpy>=1.26.0\nscikit-learn>=1.4.0\n",
     )
+    write_file(base / "pyproject.toml", pyproject(project))
     write_file(
         base / "Dockerfile",
         'FROM python:3.11-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nRUN adduser --disabled-password --gecos "" appuser && chown -R appuser:appuser /app\nUSER appuser\nEXPOSE 8000\nCMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]',
@@ -819,6 +1144,11 @@ def generate_project(project: Project) -> None:
     write_file(base / "tests" / "test_api.py", tests(project))
     for doc_name in ["architecture", "security", "methodology", "deployment", "compliance"]:
         write_file(base / "docs" / f"{doc_name}.md", common_docs(project, doc_name))
+    write_file(base / "docs" / "committee_review.md", committee_review(project))
+    write_file(base / "docs" / "operations_runbook.md", operations_doc(project))
+    write_file(base / "docs" / "monitoring.md", monitoring_doc(project))
+    write_file(base / "docs" / "commercial_offer.md", commercial_doc(project))
+    write_file(base / "docs" / "production_checklist.md", production_checklist(project))
     for report_name in ["model_card", "data_dictionary", "risk_analysis", "validation_report"]:
         write_file(base / "reports" / f"{report_name}.md", reports(project, report_name))
     write_file(
@@ -943,6 +1273,91 @@ def generate_root(projects: list[Project]) -> None:
         5. Validate regulated use cases with domain experts.
         6. Add model registry, audit evidence and incident response.
         7. Convert recurring client needs into managed products.
+        """,
+    )
+    write_file(
+        ROOT / "docs" / "committee_review_summary.md",
+        """
+        # Committee Review Summary
+
+        ## Solution Architecture
+
+        The ecosystem is organized as a portfolio of 100 reproducible project repositories,
+        each with API, tests, Docker, CI, documentation, compliance notes and commercial framing.
+
+        ## Senior Data Science
+
+        Projects are professional starter blueprints. Client conversion requires real data
+        discovery, statistical validation, model cards, uncertainty analysis and domain review.
+
+        ## MLOps
+
+        The portfolio demonstrates CI and containerized delivery. Production services should add
+        model registry, release approvals, drift monitoring, rollback and performance SLOs.
+
+        ## Security
+
+        Baseline controls include no committed secrets, safe logging, validated APIs, Docker
+        non-root execution and security documentation. Production must add IAM, scanning, secret
+        management and centralized audit trails.
+
+        ## LGPD/HIPAA
+
+        Synthetic data is used by default. Regulated deployments require privacy impact review,
+        client agreements, minimization, retention policy, subject rights process and breach response.
+
+        ## Digital Health
+
+        Healthcare projects are decision-support demonstrations and require clinician review,
+        workflow design and local protocol alignment before patient-impacting use.
+
+        ## Micro Data Center CTO
+
+        The portfolio is commercially useful as a service catalog. Priority next steps are flagship
+        demos, pricing, onboarding workflow, SLA templates and observability.
+        """,
+    )
+    write_file(
+        ROOT / "docs" / "client_presentation_checklist.md",
+        """
+        # Client Presentation Checklist
+
+        - Open with the Micro Data Center value proposition.
+        - Show the 100-project portfolio index.
+        - Pick 3 flagship projects aligned to the client's industry.
+        - Demonstrate `/health`, `/ready`, `/metrics` and the main API endpoint.
+        - Explain synthetic data and privacy-by-design.
+        - Walk through security, compliance and production checklist.
+        - Offer a paid discovery workshop and a two-week proof of concept.
+        - Close with roadmap, SLA assumptions and next steps.
+        """,
+    )
+    write_file(
+        ROOT / "docs" / "data_governance_framework.md",
+        """
+        # Data Governance Framework
+
+        ## Principles
+
+        - Data minimization.
+        - Purpose limitation.
+        - Synthetic data for public demos.
+        - Explicit client approval for real data.
+        - Role-based access control.
+        - Auditability and retention management.
+
+        ## Data Lifecycle
+
+        1. Intake and classification.
+        2. Contract and lawful basis review.
+        3. Secure transfer.
+        4. Processing in isolated environment.
+        5. Monitoring and audit logging.
+        6. Retention or deletion according to policy.
+
+        ## Prohibited in Public Repositories
+
+        - PHI, PII, credentials, private keys, client contracts, proprietary datasets and raw logs.
         """,
     )
     write_file(ROOT / "templates" / "README_TEMPLATE.md", project_readme(projects[0]))
